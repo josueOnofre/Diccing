@@ -713,35 +713,6 @@ class _PantallaInicioState extends State<PantallaInicio> {
   }
 }
 
-class _BotonAnimadoBounce extends StatefulWidget {
-  final Widget child;
-  final VoidCallback? onDoubleTap;
-  const _BotonAnimadoBounce({required this.child, this.onDoubleTap});
-
-  @override
-  State<_BotonAnimadoBounce> createState() => _BotonAnimadoBounceState();
-}
-
-class _BotonAnimadoBounceState extends State<_BotonAnimadoBounce> {
-  bool _presionado = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: (_) => setState(() => _presionado = true),
-      onTapUp: (_) => setState(() => _presionado = false),
-      onTapCancel: () => setState(() => _presionado = false),
-      onDoubleTap: widget.onDoubleTap,
-      child: AnimatedScale(
-        scale: _presionado ? 0.95 : 1.0,
-        duration: const Duration(milliseconds: 150),
-        curve: Curves.easeOutCubic,
-        child: widget.child,
-      ),
-    );
-  }
-}
-
 class _WidgetBrilloAnimado extends StatefulWidget {
   final Widget child;
   final bool isDark;
