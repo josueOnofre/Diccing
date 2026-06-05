@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../logica/glosario.dart';
 import '../provider/dispositivo_provider.dart';
+import '../widgets/notificacion.dart';
 
 class PantallaSugerir extends StatefulWidget {
   const PantallaSugerir({super.key});
@@ -45,13 +46,9 @@ class _PantallaSugerirState extends State<PantallaSugerir> {
     if (ok) {
       _ctrlNombre.clear();
       _ctrlDescripcion.clear();
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Sugerencia enviada')));
+      if (mounted) mostrarNotificacion(context, 'Sugerencia enviada');
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No se pudo enviar la sugerencia')),
-      );
+      if (mounted) mostrarNotificacion(context, 'No se pudo enviar la sugerencia', esError: true);
     }
   }
 

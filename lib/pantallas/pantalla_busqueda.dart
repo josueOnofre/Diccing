@@ -379,7 +379,7 @@ class _PantallaBusquedaState extends State<PantallaBusqueda> {
   Widget _cardPersonal(TerminoPersonal t) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bgCard =
-        isDark ? const Color(0xFF1E2A3A) : const Color(0xFFEEF2FF);
+        isDark ? const Color(0xFF1A1F36) : const Color(0xFFEEF2FF);
     final borderCard =
         isDark ? const Color(0xFF3730A3) : const Color(0xFFC7D2FE);
     final colorNombre =

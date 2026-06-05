@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../logica/glosario.dart';
 import '../logica/historial.dart';
+import '../widgets/notificacion.dart';
 import '../logica/notificadores.dart';
 import '../provider/dispositivo_provider.dart';
 import 'pantalla_resultado.dart';
@@ -140,9 +141,7 @@ class _PantallaHistorialState extends State<PantallaHistorial> {
     await Glosario.eliminarTodoHistorial(dispositivo.id);
     if (!mounted) return;
     setState(() => _items = const []);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Historial eliminado')),
-    );
+    mostrarNotificacion(context, 'Historial eliminado');
   }
 
   String _formatearFecha(DateTime f) {

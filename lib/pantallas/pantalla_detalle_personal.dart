@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'package:flutter/cupertino.dart';
-import '../logica/diccionario_personal.dart';
 import '../logica/termino_personal.dart';
+import '../logica/diccionario_personal.dart';
+import '../widgets/notificacion.dart';
 import 'pantalla_crear_termino.dart';
 
 class PantallaDetallePersonal extends StatefulWidget {
@@ -99,11 +100,7 @@ class _PantallaDetallePersonalState extends State<PantallaDetallePersonal> {
     if (exito) {
       Navigator.pop(context, true);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('No se pudo eliminar. Verifica tu conexión.'),
-        ),
-      );
+      mostrarNotificacion(context, 'No se pudo eliminar. Verifica tu conexión.', esError: true);
     }
   }
 

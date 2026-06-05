@@ -3,6 +3,8 @@ import 'dart:ui';
 import '../baseDeDatos/conexion.dart';
 import '../logica/glosario.dart';
 import '../services/auth_service.dart';
+import '../widgets/notificacion.dart';
+import 'widgets/chip_categoria.dart';
 
 const _categoriasGlosario = [
   'Programación',
@@ -36,6 +38,7 @@ class _PantallaAdminState extends State<PantallaAdmin>
   bool _cargandoTerminos = true;
   String? _mensajeErrorTerminos;
   final _busquedaTerminosCtrl = TextEditingController();
+  String? _categoriaSeleccionadaTerminos;
 
   // ── Tabs ─────────────────────────────────────────────────────
   late final TabController _tabController;
@@ -139,9 +142,20 @@ class _PantallaAdminState extends State<PantallaAdmin>
     setState(() {
       _terminosFiltrados = _terminos.where((t) {
         final nombre = (t['nombretermino'] as String? ?? '').toLowerCase();
-        return q.isEmpty || nombre.contains(q);
+        final categoria = (t['categoria'] as String? ?? '');
+        final coincideNombre = q.isEmpty || nombre.contains(q);
+        final coincideCategoria = _categoriaSeleccionadaTerminos == null || categoria == _categoriaSeleccionadaTerminos;
+        return coincideNombre && coincideCategoria;
       }).toList();
     });
+  }
+
+  void _seleccionarCategoriaTerminos(String categoria) {
+    setState(() {
+      _categoriaSeleccionadaTerminos =
+          _categoriaSeleccionadaTerminos == categoria ? null : categoria;
+    });
+    _filtrarTerminos();
   }
 
   // ── Aprobar sugerencia ─────────────────────────────────────
@@ -163,13 +177,11 @@ class _PantallaAdminState extends State<PantallaAdmin>
         'aprobado_en': DateTime.now().toIso8601String(),
       }).eq('id', s['id']);
       if (!mounted) return;
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Término "$nombre" aprobado')));
+      mostrarNotificacion(context, 'Término "$nombre" aprobado');
       _cargar();
     } catch (_) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error al aprobar la sugerencia')));
+      mostrarNotificacion(context, 'Error al aprobar la sugerencia', esError: true);
     }
   }
 
@@ -183,13 +195,11 @@ class _PantallaAdminState extends State<PantallaAdmin>
         'aprobado_en': DateTime.now().toIso8601String(),
       }).eq('id', s['id']);
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Sugerencia rechazada')));
+      mostrarNotificacion(context, 'Sugerencia rechazada');
       _cargar();
     } catch (_) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error al rechazar la sugerencia')));
+      mostrarNotificacion(context, 'Error al rechazar la sugerencia', esError: true);
     }
   }
 
@@ -217,10 +227,7 @@ class _PantallaAdminState extends State<PantallaAdmin>
     final termino = await _buscarTerminoEnGlosario(nombreSugerido);
     if (!mounted) return;
     if (termino == null) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text(
-            'No se encontró "$nombreSugerido" en el glosario. Puede haber sido eliminado.'),
-      ));
+      mostrarNotificacion(context, 'No se encontró "$nombreSugerido" en el diccionario. Puede haber sido eliminado.', esError: true);
       return;
     }
     final actualizado = await showModalBottomSheet<bool>(
@@ -230,8 +237,7 @@ class _PantallaAdminState extends State<PantallaAdmin>
       builder: (_) => _BottomSheetEditarTermino(termino: termino),
     );
     if (actualizado == true && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Término actualizado en el glosario')));
+      mostrarNotificacion(context, 'Término actualizado en el diccionario');
     }
   }
 
@@ -244,8 +250,7 @@ class _PantallaAdminState extends State<PantallaAdmin>
       builder: (_) => _BottomSheetEditarTermino(termino: termino),
     );
     if (actualizado == true && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Término actualizado en el glosario')));
+      mostrarNotificacion(context, 'Término actualizado en el diccionario');
       _cargarTerminos();
     }
   }
@@ -258,8 +263,7 @@ class _PantallaAdminState extends State<PantallaAdmin>
     // Validar que el usuario sea admin
     if (!AuthService.esAdmin) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Solo administradores pueden quitar términos')));
+      mostrarNotificacion(context, 'Solo administradores pueden quitar términos', esError: true);
       return;
     }
 
@@ -287,14 +291,12 @@ class _PantallaAdminState extends State<PantallaAdmin>
           .eq('id', sugerencia['id']);
 
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('"$nombreSugerido" quitado del glosario')));
+      mostrarNotificacion(context, '"$nombreSugerido" quitado del diccionario');
       _cargar();
     } catch (e) {
       if (!mounted) return;
       print('Error quitando término: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: ${e.toString().split('\n').first}')));
+      mostrarNotificacion(context, 'Error: ${e.toString().split('\n').first}', esError: true);
     }
   }
 
@@ -306,8 +308,7 @@ class _PantallaAdminState extends State<PantallaAdmin>
     // Validar que el usuario sea admin
     if (!AuthService.esAdmin) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Solo administradores pueden eliminar términos')));
+      mostrarNotificacion(context, 'Solo administradores pueden eliminar términos', esError: true);
       return;
     }
 
@@ -341,14 +342,12 @@ class _PantallaAdminState extends State<PantallaAdmin>
           .ilike('termino_sugerido', nombre);
 
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('"$nombre" eliminado del glosario')));
+      mostrarNotificacion(context, '"$nombre" eliminado del diccionario');
       _cargarTerminos();
     } catch (e) {
       if (!mounted) return;
       print('Error eliminando término: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: ${e.toString().split('\n').first}')));
+      mostrarNotificacion(context, 'Error: ${e.toString().split('\n').first}', esError: true);
     }
   }
 
@@ -361,8 +360,7 @@ class _PantallaAdminState extends State<PantallaAdmin>
       builder: (_) => const _BottomSheetCrearTermino(),
     );
     if (creado == true && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Término creado en el glosario')));
+      mostrarNotificacion(context, 'Término creado en el diccionario');
       _cargarTerminos();
     }
   }
@@ -447,9 +445,30 @@ class _PantallaAdminState extends State<PantallaAdmin>
               fontWeight: FontWeight.w500, fontSize: 13, fontFamily: 'Inter'),
           tabs: [
             Tab(
-              text: _totalPendientes > 0
-                  ? 'Sugerencias ($_totalPendientes)'
-                  : 'Sugerencias',
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text('Sugerencias'),
+                  if (_totalPendientes > 0) ...[
+                    const SizedBox(width: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: Colors.orange.shade100,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text(
+                        '$_totalPendientes',
+                        style: TextStyle(
+                          color: Colors.orange.shade800,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
             ),
             const Tab(text: 'Términos'),
           ],
@@ -486,34 +505,6 @@ class _PantallaAdminState extends State<PantallaAdmin>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  Text('Sugerencias pendientes: ',
-                      style:
-                          TextStyle(fontSize: 13, color: colorTextoSec)),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: _totalPendientes > 0
-                          ? Colors.orange.shade100
-                          : Colors.green.shade100,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      '$_totalPendientes',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 13,
-                        color: _totalPendientes > 0
-                            ? Colors.orange.shade800
-                            : Colors.green.shade800,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
               TextField(
                 controller: _busquedaCtrl,
                 decoration: InputDecoration(
@@ -645,6 +636,24 @@ class _PantallaAdminState extends State<PantallaAdmin>
                   contentPadding: const EdgeInsets.symmetric(
                       horizontal: 24, vertical: 14),
                 ),
+                onChanged: (_) => _filtrarTerminos(),
+              ),
+              const SizedBox(height: 14),
+              SizedBox(
+                height: 36,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: ColoresCategoria.todas.where((c) => c != 'Personal').length,
+                  separatorBuilder: (_, __) => const SizedBox(width: 8),
+                  itemBuilder: (_, i) {
+                    final cat = ColoresCategoria.todas.where((c) => c != 'Personal').elementAt(i);
+                    return ChipFiltroCategoria(
+                      categoria: cat,
+                      seleccionado: _categoriaSeleccionadaTerminos == cat,
+                      onTap: () => _seleccionarCategoriaTerminos(cat),
+                    );
+                  },
+                ),
               ),
               const SizedBox(height: 12),
               Divider(height: 1, color: colorBorde),
@@ -768,8 +777,11 @@ class _PantallaAdminState extends State<PantallaAdmin>
             Row(
               children: [
                 Expanded(
-                  child: OutlinedButton(
+                  child: OutlinedButton.icon(
                     onPressed: () => _rechazar(s),
+                    icon: const Icon(Icons.close, size: 16),
+                    label: const Text('Rechazar',
+                        style: TextStyle(fontWeight: FontWeight.w600)),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: Colors.red.shade400,
                       side: BorderSide(color: Colors.red.shade200),
@@ -777,24 +789,22 @@ class _PantallaAdminState extends State<PantallaAdmin>
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(50)),
                     ),
-                    child: const Text('Rechazar',
-                        style: TextStyle(fontWeight: FontWeight.w600)),
                   ),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
-                  child: ElevatedButton(
+                  child: OutlinedButton.icon(
                     onPressed: () => _aprobar(s),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green.shade600,
-                      foregroundColor: Colors.white,
+                    icon: const Icon(Icons.check, size: 16),
+                    label: const Text('Aprobar',
+                        style: TextStyle(fontWeight: FontWeight.w600)),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.green.shade600,
+                      side: BorderSide(color: Colors.green.shade400),
                       padding: const EdgeInsets.symmetric(vertical: 8),
-                      elevation: 0,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(50)),
                     ),
-                    child: const Text('Aprobar',
-                        style: TextStyle(fontWeight: FontWeight.w600)),
                   ),
                 ),
               ],
@@ -815,7 +825,7 @@ class _PantallaAdminState extends State<PantallaAdmin>
                       side: const BorderSide(color: Color(0xFF6366F1)),
                       padding: const EdgeInsets.symmetric(vertical: 8),
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8)),
+                          borderRadius: BorderRadius.circular(50)),
                     ),
                   ),
                 ),
@@ -832,7 +842,7 @@ class _PantallaAdminState extends State<PantallaAdmin>
                       side: BorderSide(color: Colors.red.shade200),
                       padding: const EdgeInsets.symmetric(vertical: 8),
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8)),
+                          borderRadius: BorderRadius.circular(50)),
                     ),
                   ),
                 ),
@@ -912,7 +922,7 @@ class _PantallaAdminState extends State<PantallaAdmin>
                     side: const BorderSide(color: Color(0xFF6366F1)),
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8)),
+                        borderRadius: BorderRadius.circular(50)),
                   ),
                 ),
               ),
@@ -928,7 +938,7 @@ class _PantallaAdminState extends State<PantallaAdmin>
                     side: BorderSide(color: Colors.red.shade200),
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8)),
+                        borderRadius: BorderRadius.circular(50)),
                   ),
                 ),
               ),
@@ -1051,8 +1061,7 @@ class _BottomSheetEditarTerminoState
     } catch (_) {
       if (!mounted) return;
       setState(() => _guardando = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error al guardar los cambios')));
+      mostrarNotificacion(context, 'Error al guardar los cambios', esError: true);
     }
   }
 
@@ -1066,6 +1075,7 @@ class _BottomSheetEditarTerminoState
         isDark ? const Color(0xFFF1F1F1) : const Color(0xFF111827);
 
     return Container(
+      height: MediaQuery.of(context).size.height * 0.96,
       decoration: BoxDecoration(
         color: bgSheet,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
@@ -1096,7 +1106,7 @@ class _BottomSheetEditarTerminoState
                 ),
               ),
               const SizedBox(height: 16),
-              Text('Editar término del glosario',
+              Text('Editar término del diccionario',
                   style: TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.w700,
@@ -1136,8 +1146,28 @@ class _BottomSheetEditarTerminoState
               const SizedBox(height: 6),
               DropdownButtonFormField<String>(
                 initialValue: _categoria,
-                decoration:
-                    const InputDecoration(hintText: 'Selecciona categoría'),
+                decoration: InputDecoration(
+                  hintText: 'Selecciona categoría',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide(
+                        color: isDark ? const Color(0xFF3D3D3D) : const Color(0xFFE5E7EB)),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide(
+                        color: isDark ? const Color(0xFF3D3D3D) : const Color(0xFFE5E7EB)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide(
+                        color: Theme.of(context).colorScheme.primary),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                ),
+                dropdownColor: isDark ? const Color(0xFF2C2C2C) : Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                icon: const Icon(Icons.arrow_drop_down_rounded, size: 28),
                 items: _categoriasGlosario
                     .map((c) => DropdownMenuItem(value: c, child: Text(c)))
                     .toList(),
@@ -1233,8 +1263,7 @@ class _BottomSheetCrearTerminoState extends State<_BottomSheetCrearTermino> {
     } catch (_) {
       if (!mounted) return;
       setState(() => _guardando = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error al crear el término')));
+      mostrarNotificacion(context, 'Error al crear el término', esError: true);
     }
   }
 
@@ -1248,6 +1277,7 @@ class _BottomSheetCrearTerminoState extends State<_BottomSheetCrearTermino> {
         isDark ? const Color(0xFFF1F1F1) : const Color(0xFF111827);
 
     return Container(
+      height: MediaQuery.of(context).size.height * 0.96,
       decoration: BoxDecoration(
         color: bgSheet,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),

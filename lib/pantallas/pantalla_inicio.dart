@@ -7,6 +7,7 @@ import '../logica/termino.dart';
 import '../main.dart' show modoTema, guardarModoTema;
 import '../provider/dispositivo_provider.dart';
 import '../services/auth_service.dart';
+import '../widgets/notificacion.dart';
 import 'pantalla_admin.dart';
 import 'pantalla_onboarding.dart';
 import 'pantalla_principal.dart';
@@ -108,11 +109,7 @@ class _PantallaInicioState extends State<PantallaInicio> {
       await AuthService.iniciarSesionConGoogle();
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('No se pudo iniciar sesión. Inténtalo de nuevo.'),
-        ),
-      );
+      mostrarNotificacion(context, 'No se pudo iniciar sesión. Inténtalo de nuevo.', esError: true);
     } finally {
       if (mounted) setState(() => _iniciandoSesion = false);
     }
@@ -121,9 +118,7 @@ class _PantallaInicioState extends State<PantallaInicio> {
   Future<void> _cerrarSesion() async {
     await AuthService.cerrarSesion();
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Sesión cerrada')),
-    );
+    mostrarNotificacion(context, 'Sesión cerrada');
   }
 
   void _toggleTema() {
@@ -233,8 +228,9 @@ class _PantallaInicioState extends State<PantallaInicio> {
                     Row(
                       children: [
                         Expanded(
-                          child: _BotonAnimadoBounce(
-                            onDoubleTap: () => PantallaPrincipal.irATab(3),
+                          child: GestureDetector(
+                            onTap: () => PantallaPrincipal.irATab(3),
+                            behavior: HitTestBehavior.opaque,
                             child: _tarjetaStat(
                               icono: Icons.visibility_outlined,
                               valor: _totalVistos.toString(),
@@ -248,8 +244,9 @@ class _PantallaInicioState extends State<PantallaInicio> {
                         ),
                         const SizedBox(width: 10),
                         Expanded(
-                          child: _BotonAnimadoBounce(
-                            onDoubleTap: () => PantallaPrincipal.irATab(2),
+                          child: GestureDetector(
+                            onTap: () => PantallaPrincipal.irATab(2),
+                            behavior: HitTestBehavior.opaque,
                             child: _tarjetaStat(
                               icono: Icons.bookmark_outline,
                               valor: _totalFavoritos.toString(),
@@ -353,31 +350,13 @@ class _PantallaInicioState extends State<PantallaInicio> {
                 context,
                 MaterialPageRoute(builder: (_) => const PantallaAdmin()),
               ),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF6366F1).withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: const Color(0xFF6366F1).withValues(alpha: 0.3),
-                  ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: const [
-                    Icon(Icons.admin_panel_settings_outlined,
-                        color: Color(0xFF6366F1), size: 14),
-                    SizedBox(width: 5),
-                    Text(
-                      'ADMIN',
-                      style: TextStyle(
-                        color: Color(0xFF6366F1),
-                        fontWeight: FontWeight.w700,
-                        fontSize: 11,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                  ],
+              child: CircleAvatar(
+                radius: 18,
+                backgroundColor: const Color(0xFF6366F1).withValues(alpha: 0.15),
+                child: const Icon(
+                  Icons.admin_panel_settings_rounded,
+                  color: Color(0xFF6366F1),
+                  size: 22,
                 ),
               ),
             )
@@ -497,26 +476,41 @@ class _PantallaInicioState extends State<PantallaInicio> {
     required Color colorTextoSec,
   }) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
       decoration: BoxDecoration(
         color: colorFondo,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: colorBorde),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Icon(icono, color: colorTextoSec, size: 20),
-          const SizedBox(height: 10),
           Text(
             valor,
             style: TextStyle(
-              fontSize: 22,
+              fontSize: 34,
               fontWeight: FontWeight.w700,
               color: colorTexto,
+              height: 1.0,
             ),
           ),
-          Text(label, style: TextStyle(fontSize: 12, color: colorTextoSec)),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icono, color: colorTextoSec, size: 20),
+                const SizedBox(height: 2),
+                Text(
+                  label,
+                  style: TextStyle(fontSize: 13, color: colorTextoSec, fontWeight: FontWeight.w500),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );

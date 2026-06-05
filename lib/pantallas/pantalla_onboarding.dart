@@ -94,44 +94,48 @@ class _PantallaOnboardingState extends State<PantallaOnboarding> {
                 itemBuilder: (context, index) {
                   final slide = _slides[index];
                   return Padding(
-                    padding: const EdgeInsets.all(40.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(32),
-                          decoration: BoxDecoration(
-                            color: (slide['color'] as Color).withValues(alpha: 0.1),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            slide['icono'] as IconData,
-                            size: 100,
-                            color: slide['color'] as Color,
-                          ),
+                    padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 16.0),
+                    child: Center(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(24),
+                              decoration: BoxDecoration(
+                                color: (slide['color'] as Color).withValues(alpha: 0.1),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                slide['icono'] as IconData,
+                                size: 80,
+                                color: slide['color'] as Color,
+                              ),
+                            ),
+                            const SizedBox(height: 32),
+                            Text(
+                              slide['titulo'] as String,
+                              style: TextStyle(
+                                fontSize: 26,
+                                fontWeight: FontWeight.w800,
+                                color: isDark ? const Color(0xFFF1F1F1) : const Color(0xFF111827),
+                                letterSpacing: -0.5,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              slide['descripcion'] as String,
+                              style: TextStyle(
+                                fontSize: 16,
+                                height: 1.5,
+                                color: isDark ? const Color(0xFFAAAAAA) : const Color(0xFF4B5563),
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 48),
-                        Text(
-                          slide['titulo'] as String,
-                          style: TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.w800,
-                            color: isDark ? const Color(0xFFF1F1F1) : const Color(0xFF111827),
-                            letterSpacing: -0.5,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          slide['descripcion'] as String,
-                          style: TextStyle(
-                            fontSize: 16,
-                            height: 1.5,
-                            color: isDark ? const Color(0xFFAAAAAA) : const Color(0xFF4B5563),
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
+                      ),
                     ),
                   );
                 },

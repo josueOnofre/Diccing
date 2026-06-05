@@ -5,6 +5,7 @@ import '../logica/glosario.dart';
 import '../logica/notificadores.dart';
 import '../logica/termino.dart';
 import '../provider/dispositivo_provider.dart';
+import '../widgets/notificacion.dart';
 import 'widgets/chip_categoria.dart';
 import 'widgets/widget_error_red.dart';
 
@@ -89,14 +90,7 @@ class _PantallaResultadoState extends State<PantallaResultado> {
     FavoritosNotificador.notificar();
 
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(estadoAnterior
-            ? 'Eliminado de favoritos'
-            : 'Añadido a favoritos'),
-        duration: const Duration(seconds: 2),
-      ),
-    );
+    mostrarNotificacion(context, estadoAnterior ? 'Quitado de favoritos' : 'Añadido a favoritos');
   }
 
   Future<void> _compartir() async {
@@ -122,9 +116,7 @@ class _PantallaResultadoState extends State<PantallaResultado> {
     if (_termino == null) return;
     await Clipboard.setData(ClipboardData(text: _termino!.definicion));
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Definición copiada')),
-    );
+    mostrarNotificacion(context, 'Definición copiada');
   }
 
   @override

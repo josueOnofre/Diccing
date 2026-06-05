@@ -48,10 +48,7 @@ class EstadoPantallaPrincipal extends State<PantallaPrincipal> {
       extendBody: true,
       body: Stack(
         children: [
-          IndexedStack(
-            index: _indice,
-            children: _pantallas,
-          ),
+          IndexedStack(index: _indice, children: _pantallas),
           Align(
             alignment: Alignment.bottomCenter,
             child: ValueListenableBuilder<User?>(
@@ -61,13 +58,19 @@ class EstadoPantallaPrincipal extends State<PantallaPrincipal> {
 
                 return SafeArea(
                   child: Padding(
-                    padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
+                    padding: const EdgeInsets.only(
+                      left: 16,
+                      right: 16,
+                      bottom: 16,
+                    ),
                     child: Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(50),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withAlpha((255 * (isDark ? 0.3 : 0.1)).round()),
+                            color: Colors.black.withAlpha(
+                              (255 * (isDark ? 0.3 : 0.1)).round(),
+                            ),
                             blurRadius: 20,
                             spreadRadius: 1,
                             offset: const Offset(0, 4),
@@ -80,36 +83,78 @@ class EstadoPantallaPrincipal extends State<PantallaPrincipal> {
                           filter: ImageFilter.blur(sigmaX: 15.0, sigmaY: 15.0),
                           child: Container(
                             decoration: BoxDecoration(
-                              color: isDark 
-                                  ? Theme.of(context).colorScheme.surface.withValues(alpha: 0.55) 
+                              color: isDark
+                                  ? Theme.of(context).colorScheme.surface
+                                        .withValues(alpha: 0.55)
                                   : Colors.white.withValues(alpha: 0.55),
                               borderRadius: BorderRadius.circular(50),
                               border: Border.all(
-                                color: isDark 
+                                color: isDark
                                     ? Colors.white.withValues(alpha: 0.15)
                                     : Colors.black.withValues(alpha: 0.1),
                                 width: 1,
                               ),
                             ),
                             child: SizedBox(
-                              height: 64,
+                              height: 56,
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
                                 children: [
-                                  Expanded(child: _buildNavItem(0, Icons.home_outlined, Icons.home_rounded, 'Inicio', isDark)),
-                                  Expanded(child: _buildNavItem(1, Icons.search_outlined, Icons.search_rounded, 'Buscar', isDark)),
-                                  Expanded(child: _buildNavItem(2, Icons.star_outline_rounded, Icons.star_rounded, 'Favoritos', isDark)),
-                                  Expanded(child: _buildNavItem(3, Icons.history_outlined, Icons.history_rounded, 'Historial', isDark)),
-                                  Expanded(child: _buildNavItem(4, Icons.menu_book_outlined, Icons.menu_book_rounded, 'Personal', isDark)),
+                                  Expanded(
+                                    child: _buildNavItem(
+                                      0,
+                                      Icons.home_outlined,
+                                      Icons.home_rounded,
+                                      'Inicio',
+                                      isDark,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: _buildNavItem(
+                                      1,
+                                      Icons.search_outlined,
+                                      Icons.search_rounded,
+                                      'Buscar',
+                                      isDark,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: _buildNavItem(
+                                      2,
+                                      Icons.star_outline_rounded,
+                                      Icons.star_rounded,
+                                      'Favoritos',
+                                      isDark,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: _buildNavItem(
+                                      3,
+                                      Icons.history_outlined,
+                                      Icons.history_rounded,
+                                      'Historial',
+                                      isDark,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: _buildNavItem(
+                                      4,
+                                      Icons.menu_book_outlined,
+                                      Icons.menu_book_rounded,
+                                      'Personal',
+                                      isDark,
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              );
+                );
               },
             ),
           ),
@@ -118,7 +163,13 @@ class EstadoPantallaPrincipal extends State<PantallaPrincipal> {
     );
   }
 
-  Widget _buildNavItem(int index, IconData icon, IconData selectedIcon, String label, bool isDark) {
+  Widget _buildNavItem(
+    int index,
+    IconData icon,
+    IconData selectedIcon,
+    String label,
+    bool isDark,
+  ) {
     return _NavItemAnimado(
       index: index,
       isSelected: _indice == index,
@@ -160,7 +211,9 @@ class _NavItemAnimadoState extends State<_NavItemAnimado> {
   @override
   Widget build(BuildContext context) {
     final colorPrimario = Theme.of(context).colorScheme.primary;
-    final colorTextoSec = widget.isDark ? const Color(0xFFAAAAAA) : Colors.grey.shade600;
+    final colorTextoSec = widget.isDark
+        ? const Color(0xFFAAAAAA)
+        : Colors.grey.shade600;
 
     return GestureDetector(
       onTapDown: (_) => setState(() => _pressed = true),
@@ -175,24 +228,28 @@ class _NavItemAnimadoState extends State<_NavItemAnimado> {
         duration: const Duration(milliseconds: 150),
         curve: Curves.easeOutCubic,
         child: Container(
-          height: 64,
+          height: 56,
           alignment: Alignment.center,
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 250),
             curve: Curves.easeOutCubic,
-            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: widget.isSelected ? colorPrimario.withValues(alpha: 0.15) : Colors.transparent,
+              color: widget.isSelected
+                  ? colorPrimario.withValues(alpha: 0.15)
+                  : Colors.transparent,
               borderRadius: BorderRadius.circular(50),
             ),
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 AnimatedSwitcher(
                   duration: const Duration(milliseconds: 200),
-                  transitionBuilder: (child, animation) => ScaleTransition(scale: animation, child: child),
+                  transitionBuilder: (child, animation) =>
+                      ScaleTransition(scale: animation, child: child),
                   child: Icon(
                     widget.isSelected ? widget.selectedIcon : widget.icon,
                     key: ValueKey<bool>(widget.isSelected),
@@ -205,7 +262,9 @@ class _NavItemAnimadoState extends State<_NavItemAnimado> {
                   duration: const Duration(milliseconds: 200),
                   style: TextStyle(
                     fontSize: 10,
-                    fontWeight: widget.isSelected ? FontWeight.w600 : FontWeight.w500,
+                    fontWeight: widget.isSelected
+                        ? FontWeight.w600
+                        : FontWeight.w500,
                     color: widget.isSelected ? colorPrimario : colorTextoSec,
                     fontFamily: 'Inter',
                     letterSpacing: -0.2,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../logica/diccionario_personal.dart';
 import '../logica/termino_personal.dart';
 import '../services/auth_service.dart';
+import '../widgets/notificacion.dart';
 
 class PantallaCrearTermino extends StatefulWidget {
   final TerminoPersonal? terminoAEditar;
@@ -43,10 +44,7 @@ class _PantallaCrearTerminoState extends State<PantallaCrearTermino> {
 
     final userId = AuthService.usuario.value?.id;
     if (userId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Debes iniciar sesión para guardar términos.')),
-      );
+      mostrarNotificacion(context, 'Debes iniciar sesión para guardar términos.', esError: true);
       return;
     }
 
@@ -75,20 +73,10 @@ class _PantallaCrearTerminoState extends State<PantallaCrearTermino> {
     setState(() => _guardando = false);
 
     if (exito) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(_esEdicion
-              ? 'Término actualizado exitosamente'
-              : 'Término guardado exitosamente'),
-        ),
-      );
+      mostrarNotificacion(context, _esEdicion ? 'Término actualizado exitosamente' : 'Término guardado exitosamente');
       Navigator.pop(context, true);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('No se pudo guardar. Verifica tu conexión.'),
-        ),
-      );
+      mostrarNotificacion(context, 'No se pudo guardar. Verifica tu conexión.', esError: true);
     }
   }
 
@@ -182,9 +170,28 @@ class _PantallaCrearTerminoState extends State<PantallaCrearTermino> {
                 const SizedBox(height: 8),
                 DropdownButtonFormField<String>(
                   initialValue: _categoriaSeleccionada,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     hintText: 'Selecciona una categoría',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide(
+                          color: isDark ? const Color(0xFF3D3D3D) : const Color(0xFFE5E7EB)),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide(
+                          color: isDark ? const Color(0xFF3D3D3D) : const Color(0xFFE5E7EB)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide(
+                          color: Theme.of(context).colorScheme.primary),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                   ),
+                  dropdownColor: isDark ? const Color(0xFF2C2C2C) : Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  icon: const Icon(Icons.arrow_drop_down_rounded, size: 28),
                   items: [
                     const DropdownMenuItem<String>(
                       value: null,

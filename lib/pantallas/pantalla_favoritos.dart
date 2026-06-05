@@ -4,6 +4,7 @@ import '../logica/glosario.dart';
 import '../logica/notificadores.dart';
 import '../logica/termino.dart';
 import '../provider/dispositivo_provider.dart';
+import '../widgets/notificacion.dart';
 import 'pantalla_resultado.dart';
 import 'widgets/chip_categoria.dart';
 import 'widgets/indicador_carga_skeleton.dart';
@@ -148,13 +149,9 @@ class _PantallaFavoritosState extends State<PantallaFavoritos> {
     if (ok) {
       setState(() => _favoritos = const []);
       FavoritosNotificador.notificar();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Favoritos eliminados')),
-      );
+      mostrarNotificacion(context, 'Favoritos eliminados');
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No se pudieron eliminar')),
-      );
+      mostrarNotificacion(context, 'No se pudieron eliminar', esError: true);
     }
   }
 
